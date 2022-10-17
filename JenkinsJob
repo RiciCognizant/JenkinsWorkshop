@@ -9,6 +9,8 @@ pipeline {
         stage('Hello') {
             steps {
                 echo 'Hello World'
+                sh 'echo ${testArg}'
+                sh 'echo "Added from snippet generator"'
             }
         }
           
@@ -21,11 +23,12 @@ pipeline {
             
             steps {
                 sh 'ls'
-                sh 'echo ${testArg}'
+                sh 'chmod +x HelloWorld.sh'
+                sh './HelloWorld.sh'
             }
         }
         
-        stage ('cleanup'){
+        stage ('clean WS'){
             steps {
                 cleanWs()
             }
