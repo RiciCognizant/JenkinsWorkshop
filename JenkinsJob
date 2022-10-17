@@ -1,0 +1,36 @@
+pipeline {
+    parameters{
+       string defaultValue: 'testValue', name: 'testArg' 
+    }
+    
+    agent any
+
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+          
+        stage('Execute shell') {
+            
+            agent {
+                label 'built-in'
+            
+            }
+            
+            steps {
+                sh 'ls'
+                sh 'echo ${testArg}'
+            }
+        }
+        
+        stage ('cleanup'){
+            steps {
+                cleanWs()
+            }
+        }
+        
+    }
+    
+}
