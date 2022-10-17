@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Hello') {
             steps {
-                echo 'Hello World'
+                echo 'HelloWorld'
                 sh 'echo ${testArg}'
                 sh 'echo "Added from snippet generator"'
             }
