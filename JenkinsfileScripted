@@ -1,0 +1,21 @@
+node('built-in'){
+  stage('clone from repository'){
+    checkout scm
+  }
+  
+  stage('Show env vars') {
+    sh "echo ${env.WORKSPACE}"
+  }
+  
+  stage('Execute script')
+  {
+    sh 'ls' 
+    sh 'chmod +x HelloWorld.sh'
+    sh './HelloWorld.sh'
+  }
+  
+  stage('Clean up')
+  {
+    cleanWs deleteDirs: true
+  }
+}

@@ -1,39 +1,39 @@
 pipeline {
-    parameters{
-       string defaultValue: 'testValue', name: 'testArg' 
+    parameters {
+      string defaultValue: 'defaultValue', name: 'testArg'
     }
     
     agent any
 
     stages {
+        
         stage('Hello') {
             steps {
-                echo 'HelloWorld'
+                echo 'Hello World'
                 sh 'echo ${testArg}'
                 sh 'echo "Added from snippet generator"'
             }
         }
-          
-        stage('Execute shell') {
-            
+        
+        stage('Execute shell')
+        {
             agent {
                 label 'built-in'
-            
             }
             
             steps {
-                sh 'ls'
+                sh 'ls' 
                 sh 'chmod +x HelloWorld.sh'
-                sh '/HelloWorld.sh'
+                sh './HelloWorld.sh'
             }
         }
         
-        stage ('clean WS'){
+        stage('Clean WS')
+        {
             steps {
                 cleanWs()
             }
         }
         
     }
-    
 }
