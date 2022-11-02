@@ -1,39 +1,51 @@
 pipeline {
-    parameters {
-      string defaultValue: 'defaultValue', name: 'testArg'
-    }
-    
     agent any
-
     stages {
-        
-        stage('Hello') {
-            steps {
-                echo 'Hello World'
-                sh 'echo ${testArg}'
-                sh 'echo "Added from snippet generator"'
-            }
-        }
-        
-        stage('Execute shell')
-        {
+        stage('Clean WS') {
             agent {
                 label 'built-in'
             }
             
             steps {
-                sh 'ls' 
-                sh 'chmod +x HelloWorld.sh'
-                sh './HelloWorld.sh'
-            }
-        }
-        
-        stage('Clean WS')
-        {
-            steps {
                 cleanWs()
             }
         }
         
+        stage('Build') {
+            agent {
+                docker {
+                    image 'vbsorin/playwrightdemonet'
+                    args '-u root:root -v ${WORKSPACE}/TestResults:/src/PlaywrightSharp/TestResults'
+                }
+            }
+            steps {
+                sh 'dotnet test /src/PlaywrightSharp.sln --settings:/src/PlaywrightSharp/Firefox.runsettings --logger:trx'
+            }
+        }
+        
+        stage('Publish') {
+            agent {
+                label 'built-in'
+            }
+            steps {
+                mstest testResultsFile:'**/*.trx', keepLongStdio: true, failOnError: false
+                archiveArtifacts artifacts: 'TestResults/*.trx', fingerprint: true
+                always {
+                   xunit([MSTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'TestResults/*.trx', skipNoTestFiles: false, stopProcessingIfError: true)])
+                }
+            }
+        }
+    }
+    
+    post {
+        // Clean after build
+        always {
+            cleanWs(cleanWhenNotBuilt: false,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true,
+                    patterns: [[pattern: '.gitignore', type: 'INCLUDE'],
+                               [pattern: '.propsfile', type: 'EXCLUDE']])
+        }
     }
 }
